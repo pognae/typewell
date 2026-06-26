@@ -50,6 +50,8 @@ body {
 body.writing .toolbar {
   opacity: 0.12;
 }
+/* 마우스를 움직이거나 툴바에 올리면 다시 또렷하게 */
+body.writing.mouse-active .toolbar,
 body.writing .toolbar:hover {
   opacity: 1;
 }
@@ -96,15 +98,17 @@ body.writing .toolbar:hover {
 /* Editor */
 .editor-wrap {
   flex: 1;
+  min-height: 0;
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 4vh 1.25rem 12vh;
+  padding: 0 1.25rem;
 }
 
 .editor {
   width: 100%;
   max-width: var(--max-width);
+  height: 100%;
   background: transparent;
   color: var(--fg);
   border: none;
@@ -115,6 +119,10 @@ body.writing .toolbar:hover {
   line-height: 1.85;
   letter-spacing: -0.003em;
   caret-color: var(--fg);
+  /* 타자기 모드: 현재 줄이 화면 세로 중앙에 오도록 위/아래 여백 확보 */
+  padding: 45vh 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .editor::placeholder {
@@ -128,6 +136,7 @@ body.writing .toolbar:hover {
 }
 
 /* 스크롤바 최소화 */
+.editor::-webkit-scrollbar,
 .editor-wrap::-webkit-scrollbar,
 body::-webkit-scrollbar {
   width: 10px;

@@ -43,6 +43,7 @@
   function onInput() {
     setStatus("작성 중…");
     updateCounts();
+    centerCaret();
 
     // 입력 후 일정 시간 멈추면 저장
     clearTimeout(saveTimer);
@@ -54,6 +55,93 @@
     writingTimer = setTimeout(function () {
       document.body.classList.remove("writing");
     }, 1500);
+  }
+
+  // --- 타자기 모드: 현재 입력 줄을 화면 세로 중앙에 고정 ---
+  let caretMirror = null;
+
+  function getCaretTop() {
+    if (!caretMirror) {
+      caretMirror = document.createElement("div");
+      caretMirror.setAttribute("aria-hidden", "true");
+      document.body.appendChild(caretMirror);
+    }
+    const style = getComputedStyle(editor);
+    const mirror = caretMirror;
+    mirror.style.position = "absolute";
+    mirror.style.top = "0";
+    mirror.style.left = "-9999px";
+    mirror.style.visibility = "hidden";
+    mirror.style.whiteSpace = "pre-wrap";
+    mirror.style.overflowWrap = "break-word";
+    mirror.style.boxSizing = "border-box";
+    mirror.style.width = editor.clientWidth + "px";
+    const copy = [
+      "fontFamily",
+      "fontSize",
+      "fontWeight",
+      "fontStyle",
+      "lineHeight",
+      "letterSpacing",
+      "wordSpacing",
+      "textTransform",
+      "paddingTop",
+      "paddingRight",
+      "paddingBottom",
+      "paddingLeft",
+      "borderTopWidth",
+      "borderRightWidth",
+      "borderBottomWidth",
+      "borderLeftWidth",
+    ];
+    copy.forEach(function (p) {
+      mirror.style[p] = style[p];
+    });
+
+    const pos = editor.selectionStart;
+    mirror.textContent = editor.value.slice(0, pos);
+    const marker = document.createElement("span");
+    marker.textContent = "\u200b";
+    mirror.appendChild(marker);
+    return marker.offsetTop;
+  }
+
+  function centerCaret() {
+    const caretTop = getCaretTop();
+    const lineHeight = parseFloat(getComputedStyle(editor).lineHeight) || 0;
+    editor.scrollTop = caretTop - editor.clientHeight / 2 + lineHeight / 2;
+  }
+
+  // --- 시작 시 전체 화면 (브라우저 정책상 첫 상호작용에서 진입) ---
+  let fullscreenTried = false;
+  function enterFullscreen() {
+    if (fullscreenTried) return;
+    fullscreenTried = true;
+    const el = document.documentElement;
+    const req =
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.msRequestFullscreen;
+    if (req) {
+      try {
+        const r = req.call(el);
+        if (r && typeof r.catch === "function") r.catch(function () {});
+      } catch (e) {
+        // 사용자가 거부했거나 미지원이어도 에디터는 정상 동작
+      }
+    }
+    window.removeEventListener("pointerdown", enterFullscreen);
+    window.removeEventListener("keydown", enterFullscreen);
+  }
+
+  // --- 마우스를 움직이면 상단 메뉴 표시 ---
+  let mouseTimer = null;
+  function onMouseMove() {
+    document.body.classList.add("mouse-active");
+    clearTimeout(mouseTimer);
+    mouseTimer = setTimeout(function () {
+      document.body.classList.remove("mouse-active");
+    }, 2000);
   }
 
   // --- 마크다운 내보내기 ---
@@ -128,11 +216,24 @@
   updateCounts();
   editor.addEventListener("input", onInput);
   editor.addEventListener("keydown", onKeydown);
+  editor.addEventListener("keyup", centerCaret);
+  editor.addEventListener("click", centerCaret);
   exportBtn.addEventListener("click", exportMarkdown);
+
+  // 마우스 움직이면 상단 메뉴 표시
+  window.addEventListener("mousemove", onMouseMove);
+
+  // 첫 상호작용 때 전체 화면으로 진입
+  window.addEventListener("pointerdown", enterFullscreen);
+  window.addEventListener("keydown", enterFullscreen);
+
+  // 창 크기가 바뀌어도 현재 줄을 중앙에 유지
+  window.addEventListener("resize", centerCaret);
 
   // 페이지를 떠나기 전 마지막 저장 보장
   window.addEventListener("beforeunload", saveContent);
 
-  // 로드 후 바로 입력 가능하도록 포커스
+  // 로드 후 바로 입력 가능하도록 포커스 + 현재 줄 중앙 정렬
   editor.focus();
+  centerCaret();
 })();
