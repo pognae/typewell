@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typewell</title>
+  <meta name="description" content="검정 화면, 흰 글씨. 글쓰기에만 집중하는 미니멀 에디터." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><text y='.9em' font-size='80' x='18' fill='%23fff' font-family='sans-serif'>T</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="toolbar" id="toolbar">
+    <div class="toolbar-left">
+      <span class="brand">Typewell</span>
+    </div>
+    <div class="toolbar-right">
+      <span class="status" id="status" aria-live="polite">저장됨</span>
+      <span class="counts" id="counts">0 단어 · 0 글자</span>
+      <button class="btn" id="exportBtn" title="마크다운(.md) 파일로 내보내기">내보내기</button>
+    </div>
+  </header>
+
+  <main class="editor-wrap">
+    <textarea
+      id="editor"
+      class="editor"
+      spellcheck="false"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      placeholder="여기에 쓰기 시작하세요…"
+    ></textarea>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
