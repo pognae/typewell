@@ -123,6 +123,16 @@ body.writing .toolbar:hover {
   padding: 45vh 0;
   overflow-y: auto;
   scroll-behavior: smooth;
+  /* 타자기 모드라 현재 줄이 자동으로 중앙에 오므로
+     세로 스크롤바는 숨겨 이질감을 없앤다 (휠/트랙패드 스크롤은 그대로 동작) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/구 Edge */
+}
+
+.editor::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome/Safari */
 }
 
 .editor::placeholder {
@@ -136,7 +146,6 @@ body.writing .toolbar:hover {
 }
 
 /* 스크롤바 최소화 */
-.editor::-webkit-scrollbar,
 .editor-wrap::-webkit-scrollbar,
 body::-webkit-scrollbar {
   width: 10px;
