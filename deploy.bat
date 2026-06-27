@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-setlocal
+setlocal EnableDelayedExpansion
 
 cd /d "%~dp0"
 
@@ -10,7 +10,9 @@ echo ========================================
 
 rem 커밋 메시지: 인자로 주면 그걸 쓰고, 없으면 현재 시각으로 자동 생성
 set "MSG=%*"
-if "%MSG%"=="" set "MSG=update: %date% %time%"
+rem 메시지에 따옴표가 들어가도 깨지지 않도록 제거
+set "MSG=!MSG:"=!"
+if "!MSG!"=="" set "MSG=update: %date% %time%"
 
 echo.
 echo [1/3] 변경사항 스테이징...
@@ -18,18 +20,18 @@ git add -A
 
 rem 변경사항이 없으면 커밋 건너뛰기
 git diff --cached --quiet
-if %errorlevel%==0 (
+if !errorlevel!==0 (
   echo 변경된 내용이 없습니다. 커밋을 건너뜁니다.
 ) else (
   echo.
-  echo [2/3] 커밋: %MSG%
-  git commit -m "%MSG%"
+  echo [2/3] 커밋: !MSG!
+  git commit -m "!MSG!"
 )
 
 echo.
 echo [3/3] GitHub로 push (자동 배포 트리거)...
 git push origin main
-if %errorlevel% neq 0 (
+if !errorlevel! neq 0 (
   echo.
   echo [오류] push 실패. 위 메시지를 확인하세요.
   pause
